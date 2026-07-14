@@ -25,7 +25,7 @@ Este repositório está na etapa inicial de documentação e arquitetura. Ainda 
 | `firebase` | Backend, regras, Functions, índices, emuladores e Hosting. |
 | `requisitos` | Arquitetura e documentação técnica do projeto. |
 
-Há também uma pasta legada chamada `requistos`, que contém o prompt mestre e a logo recebidos originalmente. Ela foi preservada para evitar perda ou alteração de arquivos de referência. Antes da implementação, deve-se decidir e executar, com confirmação, a correção dessa pasta para `requisitos`.
+O prompt mestre e a logo oficial estão preservados em `requisitos`, junto aos demais documentos de referência.
 
 ## Documentação
 
@@ -64,4 +64,3 @@ Cada etapa deve ser pequena, revisada e validada antes da seguinte. Segurança, 
 - Documentação-base criada.
 - Código de aplicação e infraestrutura ainda não iniciado.
 - Provedores de pagamento, mapas/geocodificação, emissão fiscal e estratégia formal de backup ainda precisam de decisão.
-
