@@ -12,6 +12,18 @@ Este documento delimita o módulo fiscal em nível de arquitetura. Regras tribut
 
 É necessário formalizar se o estabelecimento, a plataforma ou ambos emitem documentos para cada componente: venda de produtos, taxa de entrega, comissão, assinatura e repasse. A definição varia por modelo comercial, município, estado e regime tributário.
 
+## Hipótese operacional do MVP
+
+Até validação contábil, adotar a seguinte separação apenas para desenho técnico:
+
+- O estabelecimento é o vendedor do produto e responsável pelo documento fiscal da venda quando exigido.
+- O MandaJá registra pedidos e comprovantes, mas não chama comprovante de nota fiscal.
+- Comissão e assinatura da plataforma são serviços distintos e podem exigir documento fiscal próprio do MandaJá.
+- Entrega e repasse ao motoboy dependem do vínculo jurídico e do modelo operacional adotado.
+- Nenhuma emissão automática será ativada antes de definir municípios, responsabilidades, certificados e provedor fiscal.
+
+Essa hipótese não constitui orientação tributária e pode mudar após análise do contador e dos contratos.
+
 ## Dados previstos
 
 - Razão social, nome fantasia, CNPJ/CPF quando cabível.
@@ -53,4 +65,4 @@ A venda de medicamentos exige análise regulatória adicional. O sistema deve bl
 - Política de retenção e acesso.
 - Tratamento de entrega por motoboy próprio e autônomo.
 - Regras específicas para medicamentos e outros produtos regulados.
-
+- Parecer contábil que aprove ou substitua a hipótese operacional do MVP.

@@ -48,6 +48,23 @@ Solicitações de exportação e exclusão devem validar identidade, gerar proto
 
 Criar tabela de retenção por categoria antes da produção. Ao expirar o prazo, excluir, anonimizar ou agregar com processo auditável, incluindo cópias e arquivos derivados conforme viabilidade técnica e obrigação legal.
 
+### Matriz preliminar para o MVP
+
+| Categoria | Hipótese técnica de retenção | Condição |
+| --- | --- | --- |
+| Código de entrega | Até conclusão, cancelamento ou expiração máxima de 24 horas; armazenado apenas como hash. | Investigar fraude usando eventos de tentativa, nunca o código original. |
+| Localização precisa do motoboy | Durante a entrega ativa e, no máximo, 7 dias após encerramento para investigação operacional. | Confirmar necessidade e relatório de impacto; depois excluir ou agregar. |
+| Tokens FCM e sessões técnicas | Enquanto válidos e necessários; remover ao invalidar, sair ou excluir a conta. | Rotina automática de limpeza. |
+| Carrinho e reserva abandonados | Até 30 dias, com reservas liberadas muito antes conforme regra operacional. | Separar dado comercial de estoque reservado. |
+| Pedidos e pagamentos | Enquanto necessários ao contrato e às obrigações legais aplicáveis. | Prazo definitivo depende de validação jurídica, contábil e do provedor. |
+| Dados fiscais | Conforme obrigação legal aplicável. | Não fixar prazo técnico sem parecer contábil/jurídico. |
+| Suporte e denúncias | Até 2 anos após encerramento como hipótese inicial. | Reduzir ou ampliar conforme risco, obrigação e necessidade comprovada. |
+| Auditoria sensível | Até 5 anos como hipótese inicial. | Revisar proporcionalidade, acesso e obrigação por tipo de evento. |
+| Conta sem obrigação de retenção | Anonimizar ou excluir em até 30 dias após solicitação concluída. | Preservar somente retenções justificadas e comunicar ao titular. |
+| Backups | Conforme ciclos aprovados; dados expurgados não devem retornar ao ambiente ativo após restauração. | Manter lista de supressão ou rotina de reaplicação de exclusões. |
+
+Os prazos acima são hipóteses de arquitetura, não interpretação definitiva da LGPD ou de legislação fiscal. Produção depende de aprovação formal da matriz.
+
 ## Fornecedores e transferências
 
 Mapear Firebase/Google Cloud, pagamento, mapas, fiscal, atendimento, e-mail e monitoramento. Avaliar contratos, suboperadores, regiões, transferências internacionais, segurança e procedimento de incidente.
@@ -60,7 +77,7 @@ Mapear Firebase/Google Cloud, pagamento, mapas, fiscal, atendimento, e-mail e mo
 - Avaliar Analytics, antifraude e decisões automatizadas quanto a necessidade, transparência e não discriminação.
 - Manter processo de incidente com avaliação de comunicação à ANPD e titulares.
 
-## Pendências antes da implementação
+## Pendências antes de produção ou uso de dados reais
 
 - Aprovar Política de Privacidade, Termos e versões iniciais.
 - Definir bases legais e tabela de retenção.
@@ -68,4 +85,3 @@ Mapear Firebase/Google Cloud, pagamento, mapas, fiscal, atendimento, e-mail e mo
 - Aprovar fornecedores, transferências e contratos.
 - Definir requisitos para menores de idade, caso sejam admitidos.
 - Avaliar relatório de impacto para localização, documentos e antifraude.
-

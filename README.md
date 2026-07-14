@@ -30,6 +30,7 @@ O prompt mestre e a logo oficial estão preservados em `requisitos`, junto aos d
 ## Documentação
 
 - [Arquitetura](requisitos/ARQUITETURA.md)
+- [Modelo de dados do Firestore](requisitos/MODELO_DADOS_FIRESTORE.md)
 - [Glossário](requisitos/GLOSSARIO.md)
 - [Padrão de código](requisitos/PADRAO_CODIGO.md)
 - [Segurança](requisitos/SEGURANCA.md)
