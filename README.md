@@ -2,7 +2,9 @@
 
 O MandaJá é uma plataforma de pedidos e entregas para múltiplos estabelecimentos, com painel administrativo web e aplicativo móvel para clientes e motoboys.
 
-Este repositório está na etapa inicial de documentação e arquitetura. Ainda não há implementação de Angular, Flutter ou Firebase.
+As Etapas 1 e 2 estão concluídas. A Etapa 3 foi iniciada com regras de
+segurança e testes locais do Firebase. Ainda não há implementação de Angular,
+Flutter, Cloud Functions nem vínculo com um projeto Firebase real.
 
 ## Stack prevista
 
@@ -42,6 +44,7 @@ O prompt mestre e a logo oficial estão preservados em `requisitos`, junto aos d
 - [Fiscal](requisitos/FISCAL.md)
 - [Antifraude](requisitos/ANTIFRAUDE.md)
 - [Custos do Firebase](requisitos/CUSTOS_FIREBASE.md)
+- [Regras e emuladores locais do Firebase](firebase/README.md)
 
 ## Ambientes previstos
 
@@ -62,6 +65,11 @@ Cada etapa deve ser pequena, revisada e validada antes da seguinte. Segurança, 
 
 ## Estado atual
 
-- Documentação-base criada.
-- Código de aplicação e infraestrutura ainda não iniciado.
+- Documentação-base e modelo de dados do Firestore criados.
+- Primeiro recorte de Firestore Rules e Storage Rules criado com negação por
+  padrão e testes no Emulator Suite.
+- Escritas administrativas por estabelecimento continuam bloqueadas até o
+  modelo definir uma projeção determinística de membros para as Rules.
+- Nenhum recurso em nuvem, projeto pago ou dado real foi criado.
+- Angular, Flutter e Cloud Functions ainda não foram iniciados.
 - Provedores de pagamento, mapas/geocodificação, emissão fiscal e estratégia formal de backup ainda precisam de decisão.

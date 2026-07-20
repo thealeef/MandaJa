@@ -75,19 +75,32 @@ As ações abaixo pertencem à etapa futura de investimento, exceto os itens que
 9. Configurar Crashlytics e Performance Monitoring no Flutter; Analytics somente após avaliação de finalidade e consentimento.
 10. Criar alertas de orçamento, erro, latência e uso.
 
-## Configuração local futura
+## Configuração local
 
-O Firebase CLI deve ser instalado e autenticado com conta individual. O repositório deverá mapear aliases `desenvolvimento`, `homologacao` e `producao`, sem armazenar credenciais. Configurações públicas de SDK não são segredo, mas regras, App Check e autorização continuam obrigatórios.
+O primeiro recorte local está em `firebase` e usa somente o projeto fictício
+`demo-manda-ja`. As dependências são reproduzidas pelo lockfile e os testes
+não exigem login, projeto real nem faturamento. Consulte o
+[guia local das regras](../firebase/README.md).
 
-O Emulator Suite deverá cobrir:
+No momento, o Emulator Suite inicia:
+
+- Firestore na porta `8080`.
+- Storage na porta `9199`.
+
+Nos recortes futuros, o Emulator Suite deverá cobrir também:
 
 - Authentication.
-- Firestore.
-- Storage.
 - Cloud Functions.
 - Hosting.
 
-Dados seed devem ser fictícios. Portas, imports e exports dos emuladores serão documentados quando a estrutura Firebase existir.
+Quando houver ambientes reais autorizados, o Firebase CLI deverá ser
+autenticado com conta individual e o repositório deverá mapear os aliases
+`desenvolvimento`, `homologacao` e `producao`, sem armazenar credenciais.
+Configurações públicas de SDK não são segredo, mas regras, App Check e
+autorização continuam obrigatórios.
+
+Dados seed devem ser fictícios. Imports e exports serão definidos quando
+existir necessidade de persistir cenários locais.
 
 ## Segredos e IAM
 

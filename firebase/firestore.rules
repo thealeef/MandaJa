@@ -1,0 +1,321 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function documentoUsuarioAtual() {
+      return get(
+        /databases/$(database)/documents/usuarios/$(request.auth.uid)
+      );
+    }
+
+    function usuarioPodeOperar() {
+      return estaAutenticado()
+        && exists(
+          /databases/$(database)/documents/usuarios/$(request.auth.uid)
+        )
+        && documentoUsuarioAtual().data.idUsuario == request.auth.uid
+        && documentoUsuarioAtual().data.ativo == true
+        && documentoUsuarioAtual().data.bloqueado == false;
+    }
+
+    function ehN1Ativo() {
+      return usuarioPodeOperar()
+        && request.auth.token.nivelAcesso == 'n1_dev';
+    }
+
+    function consultaLimitada(maximo) {
+      return request.query.limit != null
+        && request.query.limit > 0
+        && request.query.limit <= maximo;
+    }
+
+    function atualizacaoSeguraDoPerfil() {
+      return request.resource.data
+          .diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            'nomeExibicao',
+            'atualizadoEm'
+          ])
+        && request.resource.data.nomeExibicao is string
+        && request.resource.data.nomeExibicao.size() >= 1
+        && request.resource.data.nomeExibicao.size() <= 120
+        && request.resource.data.atualizadoEm == request.time;
+    }
+
+    function dadosEnderecoValidos(idEndereco) {
+      return request.resource.data.keys().hasOnly([
+          'idEndereco',
+          'rotulo',
+          'destinatario',
+          'telefoneContato',
+          'logradouro',
+          'numero',
+          'complemento',
+          'bairro',
+          'cidade',
+          'estado',
+          'cep',
+          'pontoReferencia',
+          'localizacao',
+          'geohash',
+          'principal',
+          'ativo',
+          'criadoEm',
+          'atualizadoEm'
+        ])
+        && request.resource.data.keys().hasAll([
+          'idEndereco',
+          'rotulo',
+          'destinatario',
+          'logradouro',
+          'numero',
+          'bairro',
+          'cidade',
+          'estado',
+          'cep',
+          'principal',
+          'ativo',
+          'criadoEm',
+          'atualizadoEm'
+        ])
+        && request.resource.data.idEndereco == idEndereco
+        && request.resource.data.rotulo is string
+        && request.resource.data.rotulo.size() >= 1
+        && request.resource.data.rotulo.size() <= 40
+        && request.resource.data.destinatario is string
+        && request.resource.data.destinatario.size() >= 1
+        && request.resource.data.destinatario.size() <= 120
+        && (
+          !('telefoneContato' in request.resource.data)
+          || (
+            request.resource.data.telefoneContato is string
+            && request.resource.data.telefoneContato.size() >= 8
+            && request.resource.data.telefoneContato.size() <= 20
+          )
+        )
+        && request.resource.data.logradouro is string
+        && request.resource.data.logradouro.size() >= 1
+        && request.resource.data.logradouro.size() <= 200
+        && request.resource.data.numero is string
+        && request.resource.data.numero.size() >= 1
+        && request.resource.data.numero.size() <= 20
+        && (
+          !('complemento' in request.resource.data)
+          || request.resource.data.complemento == null
+          || (
+            request.resource.data.complemento is string
+            && request.resource.data.complemento.size() <= 120
+          )
+        )
+        && request.resource.data.bairro is string
+        && request.resource.data.bairro.size() >= 1
+        && request.resource.data.bairro.size() <= 100
+        && request.resource.data.cidade is string
+        && request.resource.data.cidade.size() >= 1
+        && request.resource.data.cidade.size() <= 100
+        && request.resource.data.estado is string
+        && request.resource.data.estado.matches('^[A-Z]{2}$')
+        && request.resource.data.cep is string
+        && request.resource.data.cep.matches('^[0-9]{8}$')
+        && (
+          !('pontoReferencia' in request.resource.data)
+          || request.resource.data.pontoReferencia == null
+          || (
+            request.resource.data.pontoReferencia is string
+            && request.resource.data.pontoReferencia.size() <= 200
+          )
+        )
+        && (
+          !('localizacao' in request.resource.data)
+          || request.resource.data.localizacao == null
+          || request.resource.data.localizacao is latlng
+        )
+        && (
+          !('geohash' in request.resource.data)
+          || request.resource.data.geohash == null
+          || (
+            request.resource.data.geohash is string
+            && request.resource.data.geohash.matches(
+              '^[0-9bcdefghjkmnpqrstuvwxyz]{1,12}$'
+            )
+          )
+        )
+        && request.resource.data.principal is bool
+        && request.resource.data.ativo is bool
+        && request.resource.data.criadoEm is timestamp
+        && request.resource.data.atualizadoEm is timestamp;
+    }
+
+    function estabelecimentoEstaPublicado(idEstabelecimento) {
+      let estabelecimento = get(
+        /databases/$(database)/documents/estabelecimentos/$(idEstabelecimento)
+      );
+
+      return estabelecimento.data.idEstabelecimento == idEstabelecimento
+        && estabelecimento.data.publicado == true
+        && estabelecimento.data.statusConta == 'ativo';
+    }
+
+    match /usuarios/{idUsuario} {
+      allow get: if estaAutenticado()
+        && request.auth.uid == idUsuario;
+
+      allow update: if usuarioPodeOperar()
+        && request.auth.uid == idUsuario
+        && atualizacaoSeguraDoPerfil();
+
+      allow list, create, delete: if false;
+
+      match /enderecos/{idEndereco} {
+        allow get: if usuarioPodeOperar()
+          && request.auth.uid == idUsuario;
+
+        allow list: if usuarioPodeOperar()
+          && request.auth.uid == idUsuario
+          && consultaLimitada(50);
+
+        allow create: if usuarioPodeOperar()
+          && request.auth.uid == idUsuario
+          && dadosEnderecoValidos(idEndereco)
+          && (
+            !('localizacao' in request.resource.data)
+            || request.resource.data.localizacao == null
+          )
+          && (
+            !('geohash' in request.resource.data)
+            || request.resource.data.geohash == null
+          )
+          && request.resource.data.criadoEm == request.time
+          && request.resource.data.atualizadoEm == request.time;
+
+        allow update: if usuarioPodeOperar()
+          && request.auth.uid == idUsuario
+          && dadosEnderecoValidos(idEndereco)
+          && !request.resource.data
+            .diff(resource.data)
+            .affectedKeys()
+            .hasAny([
+              'localizacao',
+              'geohash'
+            ])
+          && request.resource.data.idEndereco == resource.data.idEndereco
+          && request.resource.data.criadoEm == resource.data.criadoEm
+          && request.resource.data.atualizadoEm == request.time;
+
+        allow delete: if false;
+      }
+    }
+
+    match /vinculos_estabelecimentos/{idVinculo} {
+      allow get: if usuarioPodeOperar()
+        && resource.data.idVinculo == idVinculo
+        && resource.data.idUsuario == request.auth.uid;
+
+      allow list: if usuarioPodeOperar()
+        && resource.data.idUsuario == request.auth.uid
+        && consultaLimitada(50);
+
+      allow create, update, delete: if false;
+    }
+
+    match /envios_arquivos_temporarios/{idEnvioArquivo} {
+      allow get: if usuarioPodeOperar()
+        && resource.data.idEnvioArquivo == idEnvioArquivo
+        && resource.data.idUsuario == request.auth.uid;
+
+      allow list, create, update, delete: if false;
+    }
+
+    match /estabelecimentos/{idEstabelecimento} {
+      allow get: if (
+          resource.data.idEstabelecimento == idEstabelecimento
+          && resource.data.publicado == true
+          && resource.data.statusConta == 'ativo'
+        ) || ehN1Ativo();
+
+      allow list: if consultaLimitada(50)
+        && (
+          (
+            resource.data.publicado == true
+            && resource.data.statusConta == 'ativo'
+          )
+          || ehN1Ativo()
+        );
+
+      allow create, update, delete: if false;
+
+      match /horarios_especiais/{idHorarioEspecial} {
+        allow get: if ehN1Ativo() || (
+            resource.data.idHorarioEspecial == idHorarioEspecial
+            && resource.data.idEstabelecimento == idEstabelecimento
+            && estabelecimentoEstaPublicado(idEstabelecimento)
+          );
+
+        allow list: if consultaLimitada(50)
+          && (
+            ehN1Ativo()
+            || (
+              resource.data.idEstabelecimento == idEstabelecimento
+              && estabelecimentoEstaPublicado(idEstabelecimento)
+            )
+          );
+
+        allow create, update, delete: if false;
+      }
+    }
+
+    match /produtos/{idProduto} {
+      allow get: if ehN1Ativo() || (
+          resource.data.idProduto == idProduto
+          && resource.data.ativo == true
+          && resource.data.disponivelParaVenda == true
+          && estabelecimentoEstaPublicado(
+            resource.data.idEstabelecimento
+          )
+        );
+
+      allow list: if consultaLimitada(10)
+        && (
+          ehN1Ativo()
+          || (
+            resource.data.ativo == true
+            && resource.data.disponivelParaVenda == true
+            && estabelecimentoEstaPublicado(
+              resource.data.idEstabelecimento
+            )
+          )
+        );
+
+      allow create, update, delete: if false;
+    }
+
+    match /configuracoes_plataforma/{idConfiguracao} {
+      allow get: if idConfiguracao == 'estado_publico';
+      allow list, create, update, delete: if false;
+    }
+
+    match /documentos_legais/{idDocumento} {
+      allow get: if resource.data.idDocumento == idDocumento
+        && resource.data.statusDocumento in [
+          'publicado',
+          'substituido',
+          'revogado'
+        ];
+
+      allow list: if resource.data.statusDocumento == 'publicado'
+        && resource.data.atual == true
+        && consultaLimitada(10);
+
+      allow create, update, delete: if false;
+    }
+
+    match /{todosOsDocumentos=**} {
+      allow read, write: if false;
+    }
+  }
+}

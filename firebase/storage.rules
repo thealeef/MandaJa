@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function usuarioPodeOperar(idUsuario) {
+      let usuario = firestore.get(
+        /databases/(default)/documents/usuarios/$(idUsuario)
+      );
+
+      return usuario != null
+        && usuario.data.idUsuario == idUsuario
+        && usuario.data.ativo == true
+        && usuario.data.bloqueado == false;
+    }
+
+    function envioEstaAutorizado(idUsuario, idEnvioArquivo) {
+      let envio = firestore.get(
+        /databases/(default)/documents/envios_arquivos_temporarios/$(idEnvioArquivo)
+      );
+
+      return envio != null
+        && envio.data.idEnvioArquivo == idEnvioArquivo
+        && envio.data.idUsuario == idUsuario
+        && envio.data.caminhoTemporario
+          == 'temporarios/' + idUsuario + '/' + idEnvioArquivo
+        && envio.data.statusEnvio == 'autorizado'
+        && envio.data.expiraEm is timestamp
+        && request.time < envio.data.expiraEm
+        && envio.data.tiposMimePermitidos is list
+        && envio.data.tiposMimePermitidos.size() > 0
+        && envio.data.tiposMimePermitidos.size() <= 10
+        && envio.data.tamanhoMaximoBytes is int
+        && envio.data.tamanhoMaximoBytes > 0
+        && request.resource.contentType is string
+        && request.resource.contentType
+          in envio.data.tiposMimePermitidos
+        && request.resource.size is int
+        && request.resource.size > 0
+        && request.resource.size
+          <= envio.data.tamanhoMaximoBytes;
+    }
+
+    match /temporarios/{idUsuario}/{idEnvioArquivo} {
+      allow write: if resource == null
+        && request.auth != null
+        && request.auth.uid == idUsuario
+        && usuarioPodeOperar(idUsuario)
+        && envioEstaAutorizado(idUsuario, idEnvioArquivo);
+
+      allow read: if false;
+    }
+
+    match /{todosOsCaminhos=**} {
+      allow read, write: if false;
+    }
+  }
+}
